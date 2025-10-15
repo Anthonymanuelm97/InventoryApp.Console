@@ -188,5 +188,38 @@ namespace InventoryApp.Repository.Repositories
                 return false; // Error occurred, return false
             }
         }
+
+        public Product? GetLastInsertedProduct() 
+        {
+            const string query = "SELECT Top 1 Id, Name, Price, Quantity FROM Products ORDER BY Id DESC";
+
+            try
+            {
+                using var connection = _dbHelper.CreateConnection();
+                using var command = connection.CreateCommand();
+
+                command.CommandText = query; // Set the command text to the query
+                connection.Open();
+
+                using var reader = command.ExecuteReader(); // Execute the query
+
+                if (reader.Read())
+                {
+                    return new Product
+                    {
+                        Id = reader.GetInt32(0),
+                        Name = reader.GetString(1),
+                        Price = reader.GetDecimal(2),
+                        Quantity = reader.GetInt32(3)
+                    };
+                }
+                return null; // Return null if no product is found
+
+            }
+            catch (Exception)
+            {
+                return null; // Return null in case of an error
+            }
+        }
     }
 }

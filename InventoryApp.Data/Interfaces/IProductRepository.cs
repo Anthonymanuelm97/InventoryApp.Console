@@ -14,5 +14,8 @@ namespace InventoryApp.Repository.Interfaces
         Product? GetProductById(int id);
         bool UpdateProduct(Product product);
         bool RemoveProduct(int id);
+
+        Product GetLastInsertedProduct();
+
     }
 }
