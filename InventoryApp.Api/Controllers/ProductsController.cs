@@ -43,11 +43,18 @@ namespace InventoryApp.Api.Controllers
             if (product == null)
                 return BadRequest("Product data cannot be null");
 
-            var createdProduct = _productService.AddProduct(product);
-            if(createdProduct == null)
+            var isAdded = _productService.AddProduct(product);
+
+            //Managing potential errors during the insertion process
+            if (!isAdded)
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the product");
-           
-            return CreatedAtAction(nameof(GetProductById), new {id = createdProduct.Id }, createdProduct);
+
+            //Managing where may occur asinchrony or transaction issues, prevent returning an incomplete response and improve flow tracking
+            var createdProduct = _productService.GetLastInsertedProduct();
+            if (createdProduct == null)
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve the created product.");
+
+            return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
         }
     }
 }

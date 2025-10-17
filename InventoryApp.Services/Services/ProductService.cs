@@ -46,5 +46,10 @@ namespace InventoryApp.BL.Services
         {
             return _productRepository.RemoveProduct(id);
         }
+
+        public Product ? GetLastInsertedProduct() 
+        {
+            return _productRepository.GetLastInsertedProduct();
+        }
     }
 }
