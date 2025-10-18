@@ -54,7 +54,9 @@ namespace InventoryApp.Api.Controllers
             if (createdProduct == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve the created product.");
 
+            // Complying with RESTful conventions by returning a 201 Created response with the location of the new resource
             return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
         }
     }
 }
+//"Completed the AddProduct method with the GetLastInsertedProduct at the end to show the product added with new ID since it is autoincremented on Db"
