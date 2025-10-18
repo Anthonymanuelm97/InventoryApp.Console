@@ -57,6 +57,22 @@ namespace InventoryApp.Api.Controllers
             // Complying with RESTful conventions by returning a 201 Created response with the location of the new resource
             return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
         }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateProduct(int id, [FromBody] Entities.Models.Product product)
+        {
+            if (product == null)
+                return BadRequest("Product data cannot be null");
+
+            if (id != product.Id)
+                return BadRequest("Product ID mismatch");
+
+            var existingProduct = _productService.GetProductById(id);
+            if (existingProduct == null)
+                return NotFound($"Product with id {id} not found");
+
+            _productService.UpdateProduct(product);
+            return NoContent();
+        }
     }
 }
-//"Completed the AddProduct method with the GetLastInsertedProduct at the end to show the product added with new ID since it is autoincremented on Db"
