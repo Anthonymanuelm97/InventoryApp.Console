@@ -74,5 +74,29 @@ namespace InventoryApp.Api.Controllers
             _productService.UpdateProduct(product);
             return NoContent();
         }
+        
+        [HttpDelete("{id}")]
+
+        public IActionResult RemoveProduct(int id)
+
+        {
+            //Check if the product exist before attempting to delete it
+            var existingProduct = _productService.GetProductById(id);
+            if (existingProduct == null)
+                return NotFound($"Product with id {id} not found");
+
+            //Proceed to delete the product
+             var isRemoved = _productService.RemoveProduct(id);
+
+            //Handle potential errors during the deletion process
+
+            if (!isRemoved)
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while deleting the product. ");
+
+
+            //Return NoContent to indicate successful deletion without returning any content as per RESTful standards.
+            return NoContent();
+
+        }
     }
 }
