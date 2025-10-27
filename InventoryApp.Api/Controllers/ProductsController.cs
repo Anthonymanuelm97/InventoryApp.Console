@@ -20,7 +20,7 @@ namespace InventoryApp.Api.Controllers
         {
             var products = _productService.GetAllProducts();
 
-            if (products == null || !products.Any())
+            if (products == null || products.Count == 0)
                 return NotFound("Products not found");
 
             return Ok(products);
@@ -40,22 +40,31 @@ namespace InventoryApp.Api.Controllers
         [HttpPost]
         public IActionResult AddProduct([FromBody] Entities.Models.Product product)
         {
-            if (product == null)
-                return BadRequest("Product data cannot be null");
 
-            var isAdded = _productService.AddProduct(product);
+            try
+            {
+                if (product == null)
+                    return BadRequest("Product data cannot be null");
 
-            //Managing potential errors during the insertion process
-            if (!isAdded)
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the product");
+                var isAdded = _productService.AddProduct(product);
 
-            //Managing where may occur asinchrony or transaction issues, prevent returning an incomplete response and improve flow tracking
-            var createdProduct = _productService.GetLastInsertedProduct();
-            if (createdProduct == null)
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve the created product.");
+                //Managing potential errors during the insertion process
+                if (!isAdded)
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the product");
 
-            // Complying with RESTful conventions by returning a 201 Created response with the location of the new resource
-            return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
+                //Managing where may occur asinchrony or transaction issues, prevent returning an incomplete response and improve flow tracking
+                var createdProduct = _productService.GetLastInsertedProduct();
+                if (createdProduct == null)
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve the created product.");
+
+                // Complying with RESTful conventions by returning a 201 Created response with the location of the new resource
+                return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in AddProduct: {ex.Message}");
+                throw;
+            }
         }
 
         [HttpPut("{id}")]
@@ -74,7 +83,7 @@ namespace InventoryApp.Api.Controllers
             _productService.UpdateProduct(product);
             return NoContent();
         }
-        
+
         [HttpDelete("{id}")]
 
         public IActionResult RemoveProduct(int id)
@@ -86,7 +95,7 @@ namespace InventoryApp.Api.Controllers
                 return NotFound($"Product with id {id} not found");
 
             //Proceed to delete the product
-             var isRemoved = _productService.RemoveProduct(id);
+            var isRemoved = _productService.RemoveProduct(id);
 
             //Handle potential errors during the deletion process
 

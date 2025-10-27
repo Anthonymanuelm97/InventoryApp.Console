@@ -62,8 +62,9 @@ internal class Program
                         Product newProduct = new Product
                         {
                             Name = name,
-                            Price = price,
-                            Quantity = quantity
+                            Quantity = quantity,
+                            Price = price
+                            
                         };
 
                         //Add the product using the service
