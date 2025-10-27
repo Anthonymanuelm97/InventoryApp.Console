@@ -73,14 +73,16 @@ namespace InventoryApp.Api.Controllers
             if (product == null)
                 return BadRequest("Product data cannot be null");
 
-            if (id != product.Id)
-                return BadRequest("Product ID mismatch");
-
+          
             var existingProduct = _productService.GetProductById(id);
             if (existingProduct == null)
                 return NotFound($"Product with id {id} not found");
 
-            _productService.UpdateProduct(product);
+            existingProduct.Name = product.Name;
+            existingProduct.Quantity = product.Quantity;
+            existingProduct.Price = product.Price;
+
+            _productService.UpdateProduct(existingProduct);
             return NoContent();
         }
 
