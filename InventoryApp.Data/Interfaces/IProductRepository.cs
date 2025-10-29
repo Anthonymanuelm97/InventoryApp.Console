@@ -9,7 +9,7 @@ namespace InventoryApp.Repository.Interfaces
 {
     public interface IProductRepository
     {
-        bool AddProduct(Product product);
+        int AddProduct(Product product);
         List<Product> GetAllProducts();
         Product? GetProductById(int id);
         bool UpdateProduct(Product product);

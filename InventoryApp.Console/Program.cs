@@ -70,7 +70,7 @@ internal class Program
                         //Add the product using the service
 
                         var added = service.AddProduct(newProduct);
-                        Console.WriteLine(added
+                        Console.WriteLine(added <= 0
                             ? "Product added Successfully."
                             : "Failed to add product.");
 

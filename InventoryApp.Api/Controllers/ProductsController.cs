@@ -20,7 +20,7 @@ namespace InventoryApp.Api.Controllers
         {
             var products = _productService.GetAllProducts();
 
-            if (products == null || products.Count == 0)
+            if (products == null || !products.Any())
                 return NotFound("Products not found");
 
             return Ok(products);
@@ -29,6 +29,9 @@ namespace InventoryApp.Api.Controllers
         [HttpGetAttribute("{id}")]
         public IActionResult GetProductById(int id)
         {
+            if (id <= 0)
+                return BadRequest("Invalid ID");
+
             var product = _productService.GetProductById(id);
 
             if (product == null)
@@ -46,19 +49,15 @@ namespace InventoryApp.Api.Controllers
                 if (product == null)
                     return BadRequest("Product data cannot be null");
 
-                var isAdded = _productService.AddProduct(product);
+                var productId = _productService.AddProduct(product);
 
                 //Managing potential errors during the insertion process
-                if (!isAdded)
+                if (productId <= 0)
                     return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the product");
 
-                //Managing where may occur asinchrony or transaction issues, prevent returning an incomplete response and improve flow tracking
-                var createdProduct = _productService.GetLastInsertedProduct();
-                if (createdProduct == null)
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve the created product.");
-
+                product.Id = productId;
                 // Complying with RESTful conventions by returning a 201 Created response with the location of the new resource
-                return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
+                return Ok(product);
             }
             catch (Exception ex)
             {
@@ -67,23 +66,17 @@ namespace InventoryApp.Api.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateProduct(int id, [FromBody] Entities.Models.Product product)
+        [HttpPut]
+        public IActionResult UpdateProduct([FromBody] Entities.Models.Product product)
         {
             if (product == null)
                 return BadRequest("Product data cannot be null");
+            if (product.Id <= 0)
+                return BadRequest("Invalid Product ID");
 
-          
-            var existingProduct = _productService.GetProductById(id);
-            if (existingProduct == null)
-                return NotFound($"Product with id {id} not found");
-
-            existingProduct.Name = product.Name;
-            existingProduct.Quantity = product.Quantity;
-            existingProduct.Price = product.Price;
-
-            _productService.UpdateProduct(existingProduct);
-            return NoContent();
+           
+            _productService.UpdateProduct(product);
+            return Ok(product);
         }
 
         [HttpDelete("{id}")]

@@ -20,35 +20,32 @@ namespace InventoryApp.Repository.Repositories
             _dbHelper = dbHelper;
         }
 
-        public bool AddProduct(Product product)
+        public int AddProduct(Product product)
         {
             //Query to insert a new product into the database avoiding SQL injection
-            const string query = "INSERT INTO Products (Name, Price, Quantity) VALUES (@Name, @Price, @Quantity)";
+            const string query = "INSERT INTO Products (Name, Price, Quantity) VALUES (@Name, @Price, @Quantity) SELECT CAST(SCOPE_IDENTITY() AS int);";
 
             try
             {
                 using var connection = _dbHelper.CreateConnection();
                 using var command = connection.CreateCommand();
 
-                command.CommandText = query; // Set the command text to the query
-
-                //Adding parameters
+                command.CommandText = query;
 
                 command.Parameters.AddWithValue("@Name", product.Name);
                 command.Parameters.AddWithValue("@Price", product.Price);
                 command.Parameters.AddWithValue("@Quantity", product.Quantity);
 
                 connection.Open();
-                int rowsAffected = command.ExecuteNonQuery(); // Execute the query
+                var result = command.ExecuteScalar(); // Obtiene el ID generado
 
-                return rowsAffected > 0; // Return true if at least one row was affected
+                return (result != null) ? Convert.ToInt32(result) : 0; // Retorna el ID o 0 si algo falla
             }
-
-
-            catch (Exception ex)
+            catch (Exception)
             {
-                return false;
+                return 0; // Retorna 0 en caso de error
             }
+
 
 
         }

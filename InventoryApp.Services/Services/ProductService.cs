@@ -20,7 +20,7 @@ namespace InventoryApp.BL.Services
         }
 
 
-        public bool AddProduct(Product product)
+        public int AddProduct(Product product)
         {
 
             return _productRepository.AddProduct(product);
